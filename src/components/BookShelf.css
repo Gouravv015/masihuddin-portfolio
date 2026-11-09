@@ -1,0 +1,544 @@
+/* Book size and depth; everything else is derived from these. */
+.shelf {
+  --book-w: clamp(150px, 17vw, 250px);
+  --book-h: calc(var(--book-w) * 1.42);
+  --book-t: calc(var(--book-w) * 0.16);
+  --ease: cubic-bezier(0.65, 0, 0.2, 1);
+  position: relative;
+  height: max(100svh, 640px);
+  overflow: hidden;
+  touch-action: pan-y;
+  isolation: isolate;
+}
+
+.shelf__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+/* ---------- One book ---------- */
+.book {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  width: var(--book-w);
+  height: var(--book-h);
+  margin: calc(var(--book-h) / -2) 0 0 calc(var(--book-w) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition:
+    transform 0.9s var(--ease),
+    opacity 0.5s,
+    visibility 0s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.book[data-hidden] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.9s var(--ease),
+    opacity 0.5s 0.25s,
+    visibility 0s 0.9s;
+}
+
+.book:focus-visible {
+  outline: none;
+}
+
+.book:focus-visible .book__front {
+  outline: 2px solid #ff6027;
+  outline-offset: 6px;
+}
+
+.book__body {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.6s var(--ease);
+}
+
+/* The middle book lifts and turns toward you on hover. */
+.shelf:not(.shelf--open) .book--center:hover .book__body,
+.shelf:not(.shelf--open) .book--center:focus-visible .book__body {
+  transform: translateY(-14px) rotateY(10deg);
+}
+
+/* Faces. Each is a flat panel placed in 3D; only transforms change, so the browser can composite them. */
+.book__back,
+.book__page,
+.book__cover,
+.book__front,
+.book__inside {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px 6px 6px 2px;
+}
+
+.book__back {
+  background: var(--book-spine);
+  transform: translateZ(calc(var(--book-t) / -2)) rotateY(180deg);
+}
+
+/* Spine on the left, page edges on the right: each turned 90° and centred on its edge. */
+.book__spine,
+.book__edge {
+  position: absolute;
+  top: 0;
+  width: var(--book-t);
+  height: 100%;
+}
+
+.book__spine {
+  left: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--book-spine);
+  color: var(--book-ink);
+  transform: translateX(-50%) rotateY(-90deg);
+}
+
+.book__spine span {
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: calc(var(--book-t) * 0.62);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.book__edge {
+  left: 100%;
+  background: repeating-linear-gradient(90deg, #ede7db 0 2px, #d9d2c4 2px 3px);
+  transform: translateX(-50%) rotateY(90deg);
+}
+
+/* First page, just under the cover. */
+.book__page {
+  inset: 3px 4px 3px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 14% 12%;
+  background: #f4f0e8;
+  color: #1a1a1a;
+  font-size: calc(var(--book-w) * 0.052);
+  transform: translateZ(calc(var(--book-t) / 2 - 1px));
+}
+
+.book__page-title {
+  margin-bottom: 0.6rem;
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: 2.4em;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.book__page-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px dotted #b7ae9e;
+}
+
+/* Cover: hinged at the spine; swings open in the open state. */
+.book__cover {
+  transform-origin: 0 50%;
+  transform: translateZ(calc(var(--book-t) / 2));
+  transform-style: preserve-3d;
+  transition: transform 1s var(--ease);
+}
+
+.book__front,
+.book__inside {
+  backface-visibility: hidden;
+}
+
+.book__front {
+  display: flex;
+  flex-direction: column;
+  padding: 12%;
+  overflow: hidden;
+  background: var(--book-pattern, none), var(--book-cover);
+  color: var(--book-ink);
+  box-shadow: inset 6px 0 10px -6px rgba(0, 0, 0, 0.45);
+}
+
+.book__inside {
+  background: #e8e2d6;
+  transform: rotateY(180deg);
+}
+
+.book__no {
+  font-size: calc(var(--book-w) * 0.06);
+  letter-spacing: 0.06em;
+}
+
+.book__logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--book-w) * 0.05);
+  margin-top: calc(var(--book-w) * 0.07);
+  max-width: 82%;
+}
+
+/* Each logo is a mask filled with the cover's accent, so every mark matches its book. */
+.book__logo {
+  width: calc(var(--book-w) * 0.155);
+  aspect-ratio: 1;
+  background: var(--book-accent);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+}
+
+.book__title {
+  margin-top: auto;
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: calc(var(--book-w) * 0.24);
+  font-weight: 900;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.book__count {
+  margin-top: 0.8em;
+  color: var(--book-accent);
+  font-size: calc(var(--book-w) * 0.055);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Colourways, all from the site palette (orange #FF6027 on near-black and warm white). Each cover has a base
+   colour plus a pattern layer; the spine and the accent ("?" and skill count) tie them together. */
+.book--flame {
+  /* Orange cooling to ember toward the bottom corner. */
+  --book-cover: #ff6027;
+  --book-pattern: linear-gradient(155deg, rgba(255, 140, 80, 0.35) 0%, transparent 45%, rgba(110, 22, 0, 0.55) 100%);
+  --book-spine: #b8320c;
+  --book-ink: #0e0e0e;
+  --book-accent: #0e0e0e;
+}
+
+.book--ink {
+  /* Black, with orange light glowing up from the bottom. */
+  --book-cover: #121212;
+  --book-pattern: radial-gradient(120% 70% at 85% 105%, rgba(255, 96, 39, 0.55) 0%, rgba(255, 96, 39, 0.12) 45%, transparent 70%);
+  --book-spine: #ff6027;
+  --book-ink: #f5f5f5;
+  --book-accent: #ff6027;
+}
+
+.book--paper {
+  /* Warm white with a bold orange band across it. */
+  --book-cover: #f1ede6;
+  --book-pattern: linear-gradient(115deg, transparent 0 52%, #ff6027 52% 64%, transparent 64%);
+  --book-spine: #ff6027;
+  --book-ink: #0e0e0e;
+  --book-accent: #0e0e0e; /* black, so the count stays readable where the orange band crosses it */
+}
+
+.book--ember {
+  /* Deep burnt brown with orange lettering. */
+  --book-cover: #2a1209;
+  --book-pattern: linear-gradient(180deg, rgba(255, 96, 39, 0.18) 0%, transparent 40%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 6px);
+  --book-spine: #5a2410;
+  --book-ink: #ff6027;
+  --book-accent: #f5f5f5;
+}
+
+/* ---------- Open state: the book moves aside and opens; the details appear beside it ---------- */
+.shelf--open .book--center {
+  /* Far enough left to clear the details, near enough that the cover, which swings open to the left of the
+     spine, stays on screen. */
+  transform: translate3d(calc(-1 * min(15vw, 230px)), 0, 0) rotateY(-12deg);
+}
+
+.shelf--open .book--center .book__cover {
+  transform: translateZ(calc(var(--book-t) / 2)) rotateY(-150deg);
+  transition-delay: 0.35s;
+}
+
+/* ---------- Arrows ---------- */
+.shelf__nav {
+  position: absolute;
+  bottom: 7%;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transform: translateX(-50%);
+  transition: opacity 0.4s;
+}
+
+.shelf__nav {
+  transition: left 0.6s var(--ease), width 0.6s var(--ease);
+}
+
+/* Open book: the arrows move apart to the lower left and lower right, with nothing between them. */
+.shelf--open .shelf__nav {
+  left: 15%;
+  width: 70%;
+  justify-content: space-between;
+  transform: none;
+}
+
+/* Arrow buttons: a thin ring around a white disc with a dark diagonal arrow. On hover the arrow tips down to
+   point straight along (↗ to →, ↖ to ←). */
+.shelf__arrow {
+  display: grid;
+  place-items: center;
+  /* Proportions measured from the reference: the disc is 60% of the ring, the arrow about 60% of the disc. */
+  width: 74px;
+  height: 74px;
+  padding: 0;
+  border: 1px solid rgba(245, 245, 245, 0.25);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.4s,
+    opacity 0.3s;
+}
+
+.shelf__arrow::before {
+  content: '';
+  grid-area: 1 / 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  transition:
+    background-color 0.4s,
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.shelf__arrow-icon {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 29px;
+  height: 29px;
+  color: #0e0e0e;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.shelf__arrow--prev .shelf__arrow-icon {
+  transform: scaleX(-1);
+}
+
+.shelf__arrow:hover:not(:disabled),
+.shelf__arrow:focus-visible {
+  border-color: rgba(255, 96, 39, 0.7);
+  outline: none;
+}
+
+.shelf__arrow:hover:not(:disabled)::before,
+.shelf__arrow:focus-visible::before {
+  background: #ff6027;
+  transform: scale(1.03);
+}
+
+.shelf__arrow:hover:not(:disabled) .shelf__arrow-icon,
+.shelf__arrow:focus-visible .shelf__arrow-icon {
+  transform: rotate(45deg);
+}
+
+.shelf__arrow--prev:hover:not(:disabled) .shelf__arrow-icon,
+.shelf__arrow--prev:focus-visible .shelf__arrow-icon {
+  transform: scaleX(-1) rotate(45deg);
+}
+
+.shelf__arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---------- Detail panel ---------- */
+.shelf__detail {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  z-index: 4;
+  width: min(520px, 40%);
+  transform: translateY(-50%);
+  visibility: hidden;
+  transition: visibility 0s 0.6s;
+}
+
+.shelf--open .shelf__detail {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Each part rises in after the book has moved. */
+.shelf__detail > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
+}
+
+.shelf--open .shelf__detail > * {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s 0.55s,
+    transform 0.8s 0.55s var(--ease);
+}
+
+.shelf--open .shelf__detail > :nth-child(3) {
+  transition-delay: 0.62s;
+}
+
+.shelf--open .shelf__detail > :nth-child(4) {
+  transition-delay: 0.69s;
+}
+
+.shelf--open .shelf__detail > :nth-child(5) {
+  transition-delay: 0.76s;
+}
+
+.shelf__close {
+  margin-bottom: 2rem;
+  padding: 10px 18px;
+  border: 1px solid #383838;
+  border-radius: 999px;
+  background: transparent;
+  color: #f5f5f5;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.shelf__close:hover,
+.shelf__close:focus-visible {
+  border-color: #ff6027;
+  color: #ff6027;
+  outline: none;
+}
+
+.shelf__detail-title {
+  margin: 0.5rem 0 1rem;
+  color: #ff6027;
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(3.5rem, 8vw, 8rem);
+  font-weight: 900;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.shelf__detail-blurb {
+  margin: 0 0 2rem;
+  color: #f5f5f5;
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  line-height: 1.45;
+}
+
+.shelf__detail-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shelf__detail-skills li {
+  padding: 0.55rem 1.05rem;
+  border: 1px solid #ff6027;
+  border-radius: 999px;
+  color: #f5f5f5;
+  font-size: 0.9375rem;
+}
+
+/* ---------- Phones: one book at a time; when open, the book goes up and the details sit underneath ---------- */
+@media (max-width: 768px) {
+  .shelf {
+    --book-w: min(46vw, 210px);
+    height: max(100svh, 720px);
+  }
+
+  .shelf--open .book--center {
+    /* Shifted right by half a (scaled) book, so the open spread is centred on its spine. */
+    transform: translate3d(calc(var(--book-w) * 0.31), -17svh, 0) rotateY(-8deg) scale(0.62);
+  }
+
+  /* Phones: the arrows sit either side of the open book, clear of the details below. */
+  .shelf--open .shelf__nav {
+    top: calc(47% - 17svh - 26px);
+    bottom: auto;
+    left: 3%;
+    width: 94%;
+  }
+
+  .shelf__detail {
+    top: auto;
+    right: 26px;
+    bottom: 6%;
+    left: 26px;
+    width: auto;
+    transform: none;
+  }
+
+  .shelf__close {
+    position: absolute;
+    top: -59svh; /* above the open book's corner */
+    right: 0;
+  }
+
+  .shelf__detail-title {
+    font-size: clamp(3rem, 15vw, 5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf *,
+  .shelf .book {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Switching books while open: the new title, line and skills rise in (they remount, so this plays each time). */
+.shelf__swap {
+  animation: shelf-swap 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.shelf__detail-blurb.shelf__swap {
+  animation-delay: 0.06s;
+}
+
+.shelf__detail-skills.shelf__swap {
+  animation-delay: 0.12s;
+}
+
+@keyframes shelf-swap {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf__swap {
+    animation: none;
+  }
+}

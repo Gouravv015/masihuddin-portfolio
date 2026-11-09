@@ -1,0 +1,99 @@
+/* Flip text: each letter is a small cube. The letter itself is invisible; its front face (::after) shows it, and
+   on hover the cube tips forward to its bottom face (::before), which shows the same letter. */
+.flip-text {
+  display: inline-block;
+  perspective: 1000px;
+}
+
+/* The whole word for screen readers; the split letters are decorative. */
+.flip-text__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.flip-text__chars {
+  display: inline-block;
+  white-space: nowrap;
+  transform-style: preserve-3d;
+}
+
+.flip-text__space {
+  display: inline-block;
+  width: 0.28em;
+}
+
+.flip-char {
+  position: relative;
+  display: inline-block;
+  -webkit-text-fill-color: transparent;
+  transform-style: preserve-3d;
+}
+
+.flip-char::before,
+.flip-char::after {
+  content: attr(data-char);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  -webkit-text-fill-color: currentColor;
+  backface-visibility: hidden;
+}
+
+/* Front face. */
+.flip-char::after {
+  transform: translate(-50%, -50%) translateZ(0.5em);
+}
+
+/* Bottom face, which rotates up into view. */
+.flip-char::before {
+  transform: translate(-50%, -50%) rotateX(-90deg) translateZ(0.5em);
+  opacity: 0;
+}
+
+/* Play once whenever the button or link it sits in is hovered or keyboard-focused. */
+:is(a, button):is(:hover, :focus-visible) .flip-char {
+  animation: flip-char var(--flip-duration) var(--flip-delay) ease both;
+}
+
+:is(a, button):is(:hover, :focus-visible) .flip-char::after {
+  animation: flip-face-out var(--flip-duration) var(--flip-delay) ease both;
+}
+
+:is(a, button):is(:hover, :focus-visible) .flip-char::before {
+  animation: flip-face-in var(--flip-duration) var(--flip-delay) ease both;
+}
+
+@keyframes flip-char {
+  to {
+    transform: rotateX(90deg);
+  }
+}
+
+@keyframes flip-face-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes flip-face-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(a, button):is(:hover, :focus-visible) .flip-char,
+  :is(a, button):is(:hover, :focus-visible) .flip-char::before,
+  :is(a, button):is(:hover, :focus-visible) .flip-char::after {
+    animation: none;
+  }
+}

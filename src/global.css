@@ -1,0 +1,15 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #0e0e0e;
+  /* Keeps the page from shifting when the preloader unlocks scrolling. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+}
