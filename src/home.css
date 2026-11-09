@@ -29,6 +29,21 @@
   font-size: clamp(2.75rem, 15vw, 3.5rem);
 }
 
+/* Each item clips its label for the slide-in entrance. The flip effect draws letters slightly larger (they sit
+   a little toward you in 3D), so the clip edge moves out to the left to stop the first letter being sliced. */
+.home .sm-panel-itemWrap {
+  padding-left: 12px;
+  margin-left: -12px;
+}
+
+/* A slightly wider menu panel (phones keep the menu's own full-screen panel). */
+@media (min-width: 1025px) {
+  .home .staggered-menu-panel,
+  .home .sm-prelayers {
+    width: clamp(300px, 44vw, 520px);
+  }
+}
+
 /* 100vw would put the panel's right edge under the scrollbar. */
 .home .staggered-menu-wrapper.fixed-wrapper {
   width: 100%;
