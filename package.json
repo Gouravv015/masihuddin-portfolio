@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "spotify:login": "node scripts/spotify-login.mjs",
-    "test": "node --test scripts/"
+    "test": "node --test \"scripts/*.test.mjs\""
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",
