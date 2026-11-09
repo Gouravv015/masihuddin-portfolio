@@ -775,6 +775,13 @@ a.player-controls__title:focus-visible {
   overflow: hidden; /* the lines drift past the edges */
 }
 
+.footer__top-icon {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.35em;
+  vertical-align: -0.12em;
+}
+
 .bring__title {
   margin: 0;
   color: #f5f5f5;
@@ -799,4 +806,11 @@ a.player-controls__title:focus-visible {
 
 .bring__line:nth-child(3) {
   color: #6f6f6f;
+}
+
+/* Phones: 15vw is too small to carry the beat; give the three lines more presence. */
+@media (max-width: 768px) {
+  .bring__title {
+    font-size: 26vw;
+  }
 }

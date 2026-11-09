@@ -188,10 +188,8 @@ export default function BookShelf({ books }) {
                 </span>
                 <span className="book__cover">
                   <span className="book__front">
-                    <span className="book__no">{pad(i + 1)}</span>
                     <Logos items={item.items} />
                     <span className="book__title">{item.group}</span>
-                    <span className="book__count">{item.items.length} skills</span>
                   </span>
                   <span className="book__inside" />
                 </span>
@@ -225,7 +223,10 @@ export default function BookShelf({ books }) {
 
       <section className="shelf__detail" aria-hidden={!open} inert={!open} aria-labelledby="shelf-detail-title">
         <button type="button" className="shelf__close" ref={closeRef} onClick={close}>
-          <FlipText>Close ✕</FlipText>
+          <FlipText>Close</FlipText>
+          <svg className="shelf__close-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
         </button>
         {/* Keyed by book, so switching books while open re-runs their entrance (see .shelf__swap). */}
         <h3 className="shelf__detail-title shelf__swap" id="shelf-detail-title" key={`t${center}`}>

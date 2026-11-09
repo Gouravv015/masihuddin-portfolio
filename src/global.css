@@ -13,3 +13,20 @@ html {
 body {
   margin: 0;
 }
+
+/* The parts the browser draws, themed to the site: orange selection, an orange keyboard-focus ring (components
+   with their own focus style override it) and a dark, slim scrollbar. */
+::selection {
+  background: #ff6027;
+  color: #0e0e0e;
+}
+
+:focus-visible {
+  outline: 2px solid #ff6027;
+  outline-offset: 3px;
+}
+
+html {
+  scrollbar-color: #3a3a3a #0e0e0e;
+  scrollbar-width: thin;
+}

@@ -655,7 +655,17 @@ export default function Home({ inert }) {
             <div className="footer__row">
               <span>© {new Date().getFullYear()} Mohommad Masihuddin</span>
               <a href="#home">
-                <FlipText>Back to top ↑</FlipText>
+                <FlipText>Back to top</FlipText>
+                <svg className="footer__top-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 19V5M6 11l6-6 6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </a>
             </div>
             <p className="footer__credits">
