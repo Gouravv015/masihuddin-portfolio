@@ -5,6 +5,7 @@
   --book-t: calc(var(--book-w) * 0.16);
   --ease: cubic-bezier(0.65, 0, 0.2, 1);
   position: relative;
+  z-index: 2; /* above the SKILLS heading, which overlaps the shelf's top, so its buttons stay clickable */
   height: max(100svh, 640px);
   overflow: hidden;
   touch-action: pan-y;
