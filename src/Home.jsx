@@ -47,6 +47,9 @@ export default function Home({ inert }) {
 
     // Smooth scroll: Lenis eases the browser's own scroll (the page itself is never moved), ticked by GSAP so
     // ScrollTrigger and every animation stay in step. Touch keeps fully native scrolling.
+    // Start at the top on every load: ScrollTrigger otherwise restores the last scroll spot on reload.
+    ScrollTrigger.clearScrollMemory('manual');
+    window.scrollTo(0, 0);
     const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1 });
     lenisRef.current = lenis;
     lenis.on('scroll', ScrollTrigger.update);
