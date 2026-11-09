@@ -20,6 +20,8 @@ export const CONTENT = {
     { title: 'Coming soon', soon: true },
     { title: 'Coming soon', soon: true },
     { title: 'Coming soon', soon: true },
+    { title: 'Coming soon', soon: true },
+    { title: 'Coming soon', soon: true },
   ],
 
   // Skills as books on a shelf: each book is one group. `blurb` is the line on its detail page.
