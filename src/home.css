@@ -334,6 +334,7 @@
 
 /* The width limit sits on the text itself, so ch is measured at the statement's large size. */
 .about__statement .scroll-reveal-text {
+  will-change: transform; /* it drifts on scroll; its own layer keeps the word blur from repainting the page */
   max-width: 20ch;
   font-size: clamp(2rem, 5.2vw, 5.25rem);
   font-weight: 500;

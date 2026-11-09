@@ -34,7 +34,17 @@ export default function WorkWall() {
     let cardCentres = [];
     let lastScroll = NaN;
     let lastStripX = NaN;
-    const scrollPos = () => window.scrollY;
+    // Read once per scroll event instead of every frame, so reading it never forces a style recalculation.
+    let scrollY = window.scrollY;
+    const onScroll = () => (scrollY = window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const scrollPos = () => scrollY;
+    // Only write visibility when it actually changes: rewriting it on 160 letters a frame invalidated styles.
+    const show = (el, hidden) => {
+      if (el.hidden_ === hidden) return;
+      el.hidden_ = hidden;
+      el.style.visibility = hidden ? 'hidden' : '';
+    };
 
     // Where a point `flat` px from the centre lands once wrapped onto the cylinder.
     const wrap = (flat) => {
@@ -61,7 +71,8 @@ export default function WorkWall() {
 
     const draw = () => {
       const scroll = scrollPos();
-      const stripX = strip ? Number(gsap.getProperty(strip, 'x')) || 0 : 0;
+      // GSAP's own cache of the strip's x (its documented _gsap store): no computed-style read per frame.
+      const stripX = strip ? parseFloat(strip._gsap?.x) || 0 : 0;
       // Nothing moved since the last frame: skip all the DOM writes.
       if (scroll === lastScroll && stripX === lastStripX) return;
       lastScroll = scroll;
@@ -73,7 +84,7 @@ export default function WorkWall() {
         row.letters.forEach((letter, i) => {
           const flat = gsap.utils.wrap(-loop / 2, loop / 2, i * row.step + offset);
           const p = wrap(flat);
-          letter.style.visibility = p.hidden ? 'hidden' : '';
+          show(letter, p.hidden);
           if (p.hidden) return;
           const x = width / 2 + p.x - row.width / 2;
           letter.style.transform = `translate3d(${x.toFixed(1)}px, -50%, ${p.z.toFixed(1)}px) rotateY(${(-p.angle).toFixed(4)}rad)`;
@@ -84,7 +95,7 @@ export default function WorkWall() {
       cards.forEach((card, i) => {
         const flat = stripX + cardCentres[i] - width / 2;
         const p = wrap(flat);
-        card.style.visibility = p.hidden ? 'hidden' : '';
+        show(card, p.hidden);
         if (p.hidden) return;
         card.style.transform = `translate3d(${(p.x - flat).toFixed(1)}px, 0, ${p.z.toFixed(1)}px) rotateY(${(-p.angle).toFixed(4)}rad)`;
       });
@@ -103,7 +114,11 @@ export default function WorkWall() {
     });
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return () => resize.disconnect();
+    if (reduced)
+      return () => {
+        resize.disconnect();
+        window.removeEventListener('scroll', onScroll);
+      };
 
     // Redraw every frame while on screen: the eased scroll and the card slide both move things.
     let visible = true;
@@ -117,6 +132,7 @@ export default function WorkWall() {
       gsap.ticker.remove(tick);
       seen.disconnect();
       resize.disconnect();
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
 

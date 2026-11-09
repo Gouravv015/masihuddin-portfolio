@@ -50,7 +50,7 @@ export default function Home({ inert }) {
     // Start at the top on every load: ScrollTrigger otherwise restores the last scroll spot on reload.
     ScrollTrigger.clearScrollMemory('manual');
     window.scrollTo(0, 0);
-    const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1 });
+    const lenis = new Lenis({ lerp: 0.08, wheelMultiplier: 1 }); // glide measured to match yucca.co.za
     lenisRef.current = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     const tickLenis = (time) => lenis.raf(time * 1000);
@@ -107,7 +107,7 @@ export default function Home({ inert }) {
           dissolve?.destroy();
           photo.classList.remove('about__photo--flying', 'about__photo--webgl');
           scene.classList.remove('photo-scene--on');
-          gsap.set([card, photo, photoImg, ...cardText], { clearProps: 'all' });
+          [card, photo, photoImg, photoCanvas, ...cardText].forEach((el) => el?.removeAttribute('style'));
         });
         let g;
         const measure = () => {
@@ -179,18 +179,17 @@ export default function Home({ inert }) {
           const build = t <= landAt ? 0 : Math.min(1, (t - landAt) / (end - landAt));
           // Hand-off: once landed, the card's own picture (same crop) takes over under a short cross-fade.
           const handoff = Math.min(1, build / 0.15);
-          gsap.set(photo, {
-            x: box.left - slot.left - scale * W * (insetX / 100),
-            y: box.top - slot.top - scale * vh * (insetY / 100),
-            scale,
-            clipPath: `inset(${insetY}% ${insetX}% ${insetY}% ${insetX}% round ${radius}px)`,
-            autoAlpha: 1 - handoff,
-            force3D: true,
-          });
+          // Written straight to style every frame: cheaper than a GSAP tween per frame (no parsing or unit work).
+          const px = box.left - slot.left - scale * W * (insetX / 100);
+          const py = box.top - slot.top - scale * vh * (insetY / 100);
+          photo.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
+          photo.style.clipPath = `inset(${insetY}% ${insetX}% ${insetY}% ${insetX}% round ${radius}px)`;
+          photo.style.opacity = 1 - handoff;
+          photo.style.visibility = handoff >= 1 ? 'hidden' : '';
           // Parallax: mid-flight the photo zooms slightly and drifts slower than the frame; it's back to normal by
           // the landing so the crop matches the card's picture exactly.
           const mid = Math.sin(Math.PI * q);
-          gsap.set(layer, { scale: 1 + 0.14 * mid, yPercent: 6 * mid, force3D: true });
+          layer.style.transform = `translate3d(0, ${6 * mid}%, 0) scale(${1 + 0.14 * mid})`;
           // Dissolve: from a third of the way to near the landing, black and white burns into colour.
           dissolve?.render(gsap.utils.clamp(0, 1, (q - 0.3) / 0.6), [
             box.width / (scale * W),
@@ -199,10 +198,8 @@ export default function Home({ inert }) {
 
           // The card: hidden until the landing, then its frame grows out from the picture's edges.
           const k = 1 - buildEase(Math.min(1, build / 0.7));
-          gsap.set(card, {
-            autoAlpha: t >= landAt ? 1 : 0,
-            clipPath: `inset(${grow.top * k}px ${grow.right * k}px ${grow.bottom * k}px ${grow.left * k}px round ${16 + 10 * (1 - k)}px)`,
-          });
+          card.style.visibility = t >= landAt ? '' : 'hidden';
+          card.style.clipPath = `inset(${grow.top * k}px ${grow.right * k}px ${grow.bottom * k}px ${grow.left * k}px round ${16 + 10 * (1 - k)}px)`;
           // The name and title rise in letter by letter, like MASIHUDDIN; then the footer.
           if (build > 0.3 !== nameShown) {
             nameShown = !nameShown;
@@ -211,7 +208,9 @@ export default function Home({ inert }) {
           }
           cardText.forEach((el, i) => {
             const r = gsap.utils.clamp(0, 1, (build - 0.3 - i * 0.15) / 0.4);
-            gsap.set(el, { autoAlpha: r, y: 14 * (1 - buildEase(r)) });
+            el.style.opacity = r;
+            el.style.visibility = r > 0 ? '' : 'hidden';
+            el.style.transform = `translate3d(0, ${14 * (1 - buildEase(r))}px, 0)`;
           });
         };
         ScrollTrigger.create({
@@ -366,6 +365,30 @@ export default function Home({ inert }) {
           scrollTrigger: { trigger: '.work__list', start: 'top 80%' },
         });
       }
+
+      // Gentle depth between the set pieces: content drifts against the scroll, so even the calm parts move.
+      // Transform-only and scrubbed to the (already Lenis-smoothed) scroll.
+      const drift = (target, trigger, from, to) =>
+        gsap.fromTo(
+          target,
+          { y: from },
+          { y: to, ease: 'none', scrollTrigger: { trigger, start: 'top bottom', end: 'bottom top', scrub: true } },
+        );
+      drift('.about__statement .scroll-reveal-text', '.about__statement', 70, -70); // text slides past the card
+      drift('.skills__heading', '.skills__heading', 90, -40);
+
+      // Footer: its lines rise and brighten as you arrive at the end of the page.
+      gsap.fromTo(
+        '.footer__row, .footer__credits',
+        { y: 40, opacity: 0.15 },
+        {
+          y: 0,
+          opacity: 1,
+          ease: 'none',
+          stagger: 0.15,
+          scrollTrigger: { trigger: '.home__credits', start: 'top bottom', end: 'bottom bottom', scrub: true },
+        },
+      );
 
       // "Let's talk" grows into place as it scrolls into view.
       gsap.fromTo(
