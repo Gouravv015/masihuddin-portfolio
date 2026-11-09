@@ -416,12 +416,15 @@
 
 .shelf__close {
   margin-bottom: 2rem;
-  padding: 10px 18px;
+  padding: 10px 20px;
   border: 1px solid #383838;
-  border-radius: 999px;
+  border-radius: 8px; /* a rectangle with softly rounded corners */
   background: transparent;
   color: #f5f5f5;
   font: inherit;
+  /* Arial (the Windows fallback for Helvetica Neue) has no light weight; Segoe UI does. */
+  font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-weight: 300;
   cursor: pointer;
   transition:
     border-color 0.3s,
