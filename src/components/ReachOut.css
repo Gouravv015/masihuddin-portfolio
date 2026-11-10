@@ -1,0 +1,251 @@
+/* After "Let's talk": one screen, two ASCII hands reaching in from the edges, a button between them. */
+.reach {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.reach__hands {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.reach__hand {
+  width: 40%;
+  min-width: 200px;
+  will-change: transform;
+}
+
+.reach__hand canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Desktop: each hand is anchored to the centre so its index fingertip stops just in front of the button.
+ * The fingertip sits at ~93% / ~4% across each image and ~40% down, hence the canvas offsets.
+ * (The wrapper's transform belongs to the reach-in animation, so the offsets go on the canvas.)
+ */
+@media (min-width: 768px) {
+  .reach__hand {
+    --gap: 115px; /* half the button plus a little air */
+    position: absolute;
+    top: 50%;
+  }
+
+  .reach__hand:first-child {
+    right: calc(50% + var(--gap));
+  }
+
+  .reach__hand:first-child canvas {
+    transform: translate(7%, -40%);
+  }
+
+  .reach__hand:last-child {
+    left: calc(50% + var(--gap));
+  }
+
+  .reach__hand:last-child canvas {
+    transform: translate(-4.5%, -36%);
+  }
+}
+
+/* Pops up once the hands have reached in. */
+.reach__button {
+  position: relative;
+  padding: 1.15rem 2.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ff6027;
+  color: #0e0e0e;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  visibility: hidden; /* until the reveal */
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.reach__button:hover {
+  background: #f5f5f5;
+}
+
+.reach__button:focus-visible,
+.reach__send:focus-visible,
+.reach__close:focus-visible {
+  outline: 2px solid #f5f5f5;
+  outline-offset: 4px;
+}
+
+/* The message box: medium size, centred, over the blurred page. */
+.reach__dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  padding: 0;
+  border: 1px solid rgba(245, 245, 245, 0.12);
+  border-radius: 20px;
+  background: #141414;
+  color: #f5f5f5;
+}
+
+.reach__dialog::backdrop {
+  background: rgba(14, 14, 14, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.reach__dialog[open] {
+  animation: reach-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reach__dialog[open]::backdrop {
+  animation: reach-fade 0.45s ease;
+}
+
+@keyframes reach-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+@keyframes reach-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.reach__box {
+  position: relative;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.reach__close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(245, 245, 245, 0.2);
+  border-radius: 8px;
+  background: none;
+  color: #f5f5f5;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.reach__close:hover {
+  background: rgba(245, 245, 245, 0.1);
+}
+
+.reach__title {
+  margin: 0 0 1.75rem;
+  padding-right: 5.5rem; /* clear of the Close button */
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(3rem, 7vw, 4.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+}
+
+.reach__form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.reach__form label {
+  display: grid;
+  gap: 0.45rem;
+  color: rgba(245, 245, 245, 0.6);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reach__form input,
+.reach__form textarea {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(245, 245, 245, 0.14);
+  border-radius: 10px;
+  background: #0e0e0e;
+  color: #f5f5f5;
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: normal;
+  text-transform: none;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.reach__form input:focus,
+.reach__form textarea:focus {
+  border-color: #ff6027;
+  outline: none;
+}
+
+.reach__send {
+  justify-self: start;
+  margin-top: 0.4rem;
+  padding: 0.95rem 2.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ff6027;
+  color: #0e0e0e;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.reach__send:hover {
+  background: #f5f5f5;
+}
+
+.reach__note {
+  margin: 0;
+  color: rgba(245, 245, 245, 0.7);
+  line-height: 1.5;
+}
+
+/* Phones: one hand reaches in from the top left, the other from the bottom right, the button between them. */
+@media (max-width: 767px) {
+  .reach__hands {
+    flex-direction: column;
+    justify-content: center;
+    gap: 7rem;
+  }
+
+  .reach__hand {
+    width: 90%;
+    min-width: 0;
+  }
+
+  .reach__hand:first-child {
+    align-self: flex-start;
+  }
+
+  .reach__hand:last-child {
+    align-self: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reach__button {
+    visibility: visible;
+  }
+
+  .reach__dialog[open],
+  .reach__dialog[open]::backdrop {
+    animation: none;
+  }
+}

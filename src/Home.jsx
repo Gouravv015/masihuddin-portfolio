@@ -10,6 +10,7 @@ import BorderGlow from './components/BorderGlow.jsx';
 import CursorFollower from './components/CursorFollower.jsx';
 import FlipText from './components/FlipText.jsx';
 import Journey from './components/Journey.jsx';
+import ReachOut from './components/ReachOut.jsx';
 import { createDissolve } from './components/dissolve.js';
 import { MusicToggleButton } from './components/MusicToggleButton.jsx';
 import ProfileCard from './components/ProfileCard.jsx';
@@ -241,11 +242,12 @@ export default function Home({ inert }) {
         },
       });
 
-      // "What I've done" sits on the outside of a cylinder lying on its side. The line level with the middle of the
-      // screen faces you; scrolling rolls the cylinder up, so lines curve away over the top and come up from below.
-      const heading = document.querySelector('.work__heading');
-      const headingLines = gsap.utils.toArray('.work__heading-line');
-      if (heading) {
+      // "What I've done" and "Let's talk" sit on the outside of a cylinder lying on its side. The line level with the
+      // middle of the screen faces you; scrolling rolls the cylinder up, so lines curve away over the top and come up
+      // from below.
+      const rollOnDrum = (heading) => {
+        if (!heading) return;
+        const headingLines = [...heading.children];
         let headingOnScreen = false;
         let lastTop = NaN;
         ScrollTrigger.create({
@@ -275,7 +277,8 @@ export default function Home({ inert }) {
         };
         gsap.ticker.add(rollHeading);
         cleanups.push(() => gsap.ticker.remove(rollHeading));
-      }
+      };
+      rollOnDrum(document.querySelector('.work__heading'));
 
       // Gallery: the section pins while the project strip slides across; WorkWall bends both onto a cylinder.
       const reel = document.querySelector('.work-reel');
@@ -459,22 +462,9 @@ export default function Home({ inert }) {
         story.to({}, { duration: 0.1 }); // a beat on the last chapter before the section moves on
       }
 
-      // "Let's talk" grows into place as it scrolls into view.
-      gsap.fromTo(
-        '.contact__title',
-        { scale: 0.7, yPercent: 30 },
-        {
-          scale: 1,
-          yPercent: 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: '.contact',
-            start: 'top bottom',
-            end: 'center center',
-            scrub: true,
-          },
-        },
-      );
+      // "Let's talk" rolls on the same drum. Set up after the pinned sections above it, so its scroll positions
+      // count their extra length.
+      rollOnDrum(document.querySelector('.contact__title'));
 
       // A preview follows the pointer over the work list. Mouse and trackpad only.
       const preview = document.querySelector('.work__preview');
@@ -739,15 +729,20 @@ export default function Home({ inert }) {
             </section>
 
             <section className="contact" id="contact" aria-labelledby="contact-title">
-              <h2 className="contact__title" id="contact-title">
-                LET'S TALK
+              <h2 className="contact__title" id="contact-title" aria-label="Let's talk">
+                {["LET'S", 'TALK'].map((line) => (
+                  <span className="work__heading-line" aria-hidden="true" key={line}>
+                    {line}
+                  </span>
+                ))}
               </h2>
-              {CONTENT.email ? (
-                <a className="contact__cta" href={`mailto:${CONTENT.email}`}>
-                  {CONTENT.email}
-                </a>
-              ) : null}
             </section>
+
+            {/* After "Let's talk" has rolled away: two hands reach in and offer a way to send a message. */}
+            <ReachOut
+              email={CONTENT.email}
+              onDialogChange={(open) => (open ? lenisRef.current?.stop() : lenisRef.current?.start())}
+            />
           </main>
           {/* Both licences require a visible credit. */}
           <footer className="home__credits">
@@ -777,6 +772,10 @@ export default function Home({ inert }) {
               . Dissolve after{' '}
               <a href="https://www.vengenceui.com/components/scroll-dissolve-reveal" target="_blank" rel="noreferrer">
                 Vengeance UI
+              </a>
+              , ASCII hands from its{' '}
+              <a href="https://www.vengenceui.com/components/animated-footer" target="_blank" rel="noreferrer">
+                Animated Footer
               </a>
               . Text reveal, menu, profile card and card effects from{' '}
               <a href="https://reactbits.dev" target="_blank" rel="noreferrer">
