@@ -581,7 +581,8 @@ a.work__row:focus-visible {
 
 .contact__title {
   position: relative; /* lines measure their offset from here, for the drum roll */
-  margin: 0 0 102vh; /* room for it to roll fully away before the message section comes up */
+  /* The hands section slides up under it, so the hands arrive as soon as it has rolled away (and no sooner). */
+  margin: 0 0 -10vh;
   color: #f5f5f5;
   font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
   font-size: clamp(4.5rem, 15vw, 16rem); /* same type as "What I've done", so the drum roll looks the same */
@@ -590,6 +591,11 @@ a.work__row:focus-visible {
 }
 
 @media (max-width: 768px) {
+  /* Smaller type rolls away sooner. */
+  .contact__title {
+    margin-bottom: -68vh;
+  }
+
   .work__row {
     grid-template-columns: 2.5rem 1fr;
     gap: 0.5rem 1rem;

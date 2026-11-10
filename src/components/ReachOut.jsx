@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './ReachOut.css';
 
 /*
@@ -165,7 +166,8 @@ export default function ReachOut({ email, onDialogChange }) {
     const tick = () => onScreen && draw(false);
     gsap.ticker.add(tick);
 
-    // The hands reach in once the section is mostly on screen, then the button pops up; both reverse on the way out.
+    // The hands reach in the moment "Let's talk" has rolled away (the section sits under it, see .contact__title),
+    // then the button pops up; both reverse when you scroll back up.
     const reveal = gsap
       .timeline({ paused: true })
       .to(reach, { offset: 0, duration: 1.2, ease: 'power3.out' })
@@ -176,20 +178,22 @@ export default function ReachOut({ email, onDialogChange }) {
         '-=0.25',
       );
     if (reduced) reveal.progress(1);
-    const seen = new IntersectionObserver(
-      ([entry]) => {
-        onScreen = entry.isIntersecting;
-        if (reduced) return;
-        if (entry.intersectionRatio >= 0.5) reveal.timeScale(1).play();
-        else if (!entry.isIntersecting) reveal.timeScale(2.5).reverse();
-      },
-      { threshold: [0, 0.5] },
-    );
+    const cue = reduced
+      ? null
+      : ScrollTrigger.create({
+          trigger: root,
+          start: 'top 15%',
+          refreshPriority: -1, // measured after the pinned sections above, which Home sets up later
+          onEnter: () => reveal.timeScale(1).play(),
+          onLeaveBack: () => reveal.timeScale(2.5).reverse(),
+        });
+    const seen = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
     seen.observe(root);
 
     return () => {
       gsap.ticker.remove(tick);
       seen.disconnect();
+      cue?.kill();
       reveal.kill();
       root.removeEventListener('mousemove', onMove);
     };
