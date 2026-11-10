@@ -62,7 +62,7 @@
   position: relative;
   padding: 1.15rem 2.4rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: 6px;
   background: #ff6027;
   color: #0e0e0e;
   font: inherit;
@@ -198,7 +198,7 @@
   margin-top: 0.4rem;
   padding: 0.95rem 2.2rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: 6px;
   background: #ff6027;
   color: #0e0e0e;
   font: inherit;
