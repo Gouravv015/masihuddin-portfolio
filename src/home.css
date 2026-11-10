@@ -669,8 +669,7 @@ a.player-controls__title:focus-visible {
 .skills__heading {
   position: relative;
   z-index: 1;
-  /* The shelf's stage has empty room at its top; pull it up so the heading and the books share the screen. */
-  margin: 0 var(--gutter) -16svh;
+  margin: 0 var(--gutter) 2rem;
   color: #f5f5f5;
   font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
   font-size: clamp(4.5rem, 15vw, 16rem);
@@ -800,4 +799,19 @@ a.player-controls__title:focus-visible {
 
 .bring__line:nth-child(3) {
   color: #6f6f6f;
+}
+
+/* Journey: the heading, then the pinned line-and-milestones stage (styles in Journey.css). */
+.journey {
+  padding-top: var(--section);
+}
+
+.journey__heading {
+  margin: 0 var(--gutter);
+  color: #f5f5f5;
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(4.5rem, 15vw, 16rem);
+  font-weight: 900;
+  line-height: 0.86;
+  text-align: center;
 }

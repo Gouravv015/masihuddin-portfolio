@@ -26,6 +26,17 @@ export const CONTENT = {
 
   // Skills as books on a shelf: each book is one group. `blurb` is the line on its detail page.
   // From the tech stack on github.com/Masihh143. Add, remove or regroup freely.
+  // The Journey section: one milestone per stop along the line. Keep each to one or two short lines.
+  // PLACEHOLDER: an invented story for testing the section; replace with the real one.
+  journey: [
+    { year: '2016', title: 'The first spark', text: 'Took apart a family PC to see how it worked — and couldn’t put it back.' },
+    { year: '2018', title: 'Hello, world', text: 'Wrote a first web page in Notepad. It was ugly. It was mine.' },
+    { year: '2020', title: 'Hooked on the web', text: 'Learned JavaScript and React; built small tools for friends.' },
+    { year: '2022', title: 'Going deeper', text: 'Backends, databases and APIs — taking ideas all the way to production.' },
+    { year: '2024', title: 'Motion & craft', text: 'Discovered GSAP and fell for interfaces that move with purpose.' },
+    { year: 'Now', title: 'Building what’s next', text: 'Shipping full-stack products and experiments in AI.' },
+  ],
+
   skills: [
     { group: 'Languages', blurb: 'The ones I think in.', items: ['JavaScript', 'TypeScript', 'Python', 'Java', 'HTML5', 'CSS3'] },
     {

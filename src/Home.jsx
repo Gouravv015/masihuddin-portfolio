@@ -2,12 +2,14 @@ import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import BookShelf from './components/BookShelf.jsx';
 import BorderGlow from './components/BorderGlow.jsx';
 import CursorFollower from './components/CursorFollower.jsx';
 import FlipText from './components/FlipText.jsx';
+import Journey from './components/Journey.jsx';
 import { createDissolve } from './components/dissolve.js';
 import { MusicToggleButton } from './components/MusicToggleButton.jsx';
 import ProfileCard from './components/ProfileCard.jsx';
@@ -20,7 +22,7 @@ import { CONTENT } from './content.js';
 import { DOT, GLYPH, HOOK_PATH } from './preloader/glyph.js';
 import './home.css';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE_POINTER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -30,6 +32,7 @@ const MENU_ITEMS = [
   { label: 'About', ariaLabel: 'Go to about', link: '#about' },
   { label: 'Work', ariaLabel: 'Go to selected work', link: '#projects' },
   { label: 'Skills', ariaLabel: 'Go to skills', link: '#skills' },
+  { label: 'Journey', ariaLabel: 'Go to journey', link: '#journey' },
   { label: 'Contact', ariaLabel: 'Go to contact', link: '#contact' },
 ];
 
@@ -390,6 +393,72 @@ export default function Home({ inert }) {
         },
       );
 
+      // Journey: the stage pins and, as you scroll, the line draws itself across the top of the screen. When it
+      // reaches a marker, the marker fills and that milestone's chapter takes over from the last one.
+      const journeyStage = document.querySelector('.journey__stage');
+      if (journeyStage) {
+        const marks = gsap.utils.toArray('.journey__mark');
+        const chapters = gsap.utils.toArray('.journey__chapter');
+        const story = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: journeyStage,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * (marks.length * 0.7 + 0.4)}`,
+            pin: true,
+            scrub: 0.6, // the line trails the scroll a touch, so drawing and retracting both glide
+            invalidateOnRefresh: true,
+          },
+        });
+        const line = journeyStage.querySelector('.journey__draw');
+        const tip = journeyStage.querySelector('.journey__tip');
+        story.fromTo(
+          line,
+          { drawSVG: '0%' },
+          {
+            drawSVG: '100%',
+            duration: 1,
+            onUpdate() {
+              const p = line.getPointAtLength(this.progress() * line.getTotalLength());
+              tip.setAttribute('cx', p.x);
+              tip.setAttribute('cy', p.y);
+              tip.style.visibility = this.progress() > 0 && this.progress() < 1 ? 'visible' : 'hidden';
+            },
+          },
+          0,
+        );
+        const ats = marks.map((mark) => Number(mark.dataset.at) || 0);
+        gsap.set(chapters, { autoAlpha: 0 });
+        marks.forEach((mark, i) => {
+          const at = ats[i];
+          const chapter = chapters[i];
+          story
+            .from(mark.querySelector('.journey__dot'), { scale: 0, duration: 0.025, ease: 'back.out(3)' }, at - 0.01)
+            .from(mark.querySelector('.journey__fill'), { scale: 0, duration: 0.03, ease: 'back.out(3)' }, at)
+            .from(mark.querySelector('.journey__label'), { autoAlpha: 0, y: 6, duration: 0.04 }, at)
+            .set(chapter, { autoAlpha: 1 }, at)
+            .from(chapter.querySelector('.journey__year'), { yPercent: 102, duration: 0.07, ease: 'expo.out' }, at)
+            .from(
+              chapter.querySelectorAll('.journey__count, .journey__title, .journey__text'),
+              { autoAlpha: 0, y: 28, duration: 0.06, stagger: 0.012, ease: 'power3.out' },
+              at + 0.015,
+            );
+          // Hand over to the next chapter just before the line reaches its marker.
+          if (i < marks.length - 1) {
+            const out = Math.max(at + 0.08, ats[i + 1] - 0.045);
+            story
+              .to(chapter.querySelector('.journey__year'), { yPercent: -102, duration: 0.045, ease: 'power2.in' }, out)
+              .to(
+                chapter.querySelector('.journey__body'),
+                { autoAlpha: 0, y: -20, duration: 0.035, ease: 'power2.in' },
+                out,
+              )
+              .set(chapter, { autoAlpha: 0 }, out + 0.045);
+          }
+        });
+        story.to({}, { duration: 0.1 }); // a beat on the last chapter before the section moves on
+      }
+
       // "Let's talk" grows into place as it scrolls into view.
       gsap.fromTo(
         '.contact__title',
@@ -660,6 +729,13 @@ export default function Home({ inert }) {
                 SKILLS
               </h2>
               <BookShelf books={CONTENT.skills} />
+            </section>
+
+            <section className="journey" id="journey" aria-labelledby="journey-title">
+              <h2 className="journey__heading" id="journey-title">
+                JOURNEY
+              </h2>
+              <Journey items={CONTENT.journey} />
             </section>
 
             <section className="contact" id="contact" aria-labelledby="contact-title">
