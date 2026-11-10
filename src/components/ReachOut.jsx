@@ -8,7 +8,7 @@ import './ReachOut.css';
  * button pops up between them. Hovering lights up little clusters of the hands' characters. The button opens a
  * message box over the blurred page.
  *
- * The hands are ported from Vengeance UI's Animated Footer (MIT, credited in the page footer), trimmed to what
+ * The hands are ported from Vengeance UI's Animated Footer (MIT, Copyright (c) Ashutoshx7), trimmed to what
  * this page uses and recoloured for the site.
  */
 

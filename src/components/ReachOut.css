@@ -35,7 +35,8 @@
  */
 @media (min-width: 768px) {
   .reach__hand {
-    --gap: 115px; /* half the button plus a little air */
+    --gap: 160px; /* half the button plus some air, so the fingertips stop short of it */
+    width: 50%; /* wide enough that each arm runs off the screen edge, hiding where the image ends */
     position: absolute;
     top: 50%;
   }

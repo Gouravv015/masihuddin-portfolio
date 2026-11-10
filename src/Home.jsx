@@ -385,13 +385,12 @@ export default function Home({ inert }) {
 
       // Footer: its lines rise and brighten as you arrive at the end of the page.
       gsap.fromTo(
-        '.footer__row, .footer__credits',
+        '.footer__row',
         { y: 40, opacity: 0.15 },
         {
           y: 0,
           opacity: 1,
           ease: 'none',
-          stagger: 0.15,
           scrollTrigger: { trigger: '.home__credits', start: 'top bottom', end: 'bottom bottom', scrub: true },
         },
       );
@@ -744,7 +743,6 @@ export default function Home({ inert }) {
               onDialogChange={(open) => (open ? lenisRef.current?.stop() : lenisRef.current?.start())}
             />
           </main>
-          {/* Both licences require a visible credit. */}
           <footer className="home__credits">
             <div className="footer__row">
               <span>© {new Date().getFullYear()} Mohommad Masihuddin</span>
@@ -752,37 +750,6 @@ export default function Home({ inert }) {
                 <FlipText>Back to top ↑</FlipText>
               </a>
             </div>
-            <p className="footer__credits">
-              Music:{' '}
-              <a
-                href="https://commons.wikimedia.org/wiki/File:Binbataye_Hindi_pop.oga"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Binbataye
-              </a>{' '}
-              by Gadadharadas,{' '}
-              <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">
-                CC BY-SA 3.0
-              </a>
-              , converted to MP3. Music button by{' '}
-              <a href="https://skiper-ui.com/v1/skiper25" target="_blank" rel="noreferrer">
-                Skiper UI
-              </a>
-              . Dissolve after{' '}
-              <a href="https://www.vengenceui.com/components/scroll-dissolve-reveal" target="_blank" rel="noreferrer">
-                Vengeance UI
-              </a>
-              , ASCII hands from its{' '}
-              <a href="https://www.vengenceui.com/components/animated-footer" target="_blank" rel="noreferrer">
-                Animated Footer
-              </a>
-              . Text reveal, menu, profile card and card effects from{' '}
-              <a href="https://reactbits.dev" target="_blank" rel="noreferrer">
-                React Bits
-              </a>
-              .
-            </p>
           </footer>
         </div>
       </div>
