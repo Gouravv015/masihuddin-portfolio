@@ -6,7 +6,7 @@ export const CONTENT = {
 
   // The photo in the second section, which shrinks into the About text as you scroll.
   // PLACEHOLDER: a free Unsplash photo by Matthew Wiebe (via Picsum). Replace public/portrait.jpg with yours, in
-  // colour: it's shown black and white at first and turns to colour as it dissolves on its way into the card.
+  // It's shown in black and white.
   portrait: `${import.meta.env.BASE_URL}portrait.jpg`,
 
   // Your email, e.g. 'hello@example.com'. The contact button stays hidden until this is set.
@@ -29,16 +29,28 @@ export const CONTENT = {
   // The Journey section: one milestone per stop along the line. Keep each to one or two short lines.
   // PLACEHOLDER: an invented story for testing the section; replace with the real one.
   journey: [
-    { year: '2016', title: 'The first spark', text: 'Took apart a family PC to see how it worked — and couldn’t put it back.' },
+    {
+      year: '2016',
+      title: 'The first spark',
+      text: 'Took apart a family PC to see how it worked — and couldn’t put it back.',
+    },
     { year: '2018', title: 'Hello, world', text: 'Wrote a first web page in Notepad. It was ugly. It was mine.' },
     { year: '2020', title: 'Hooked on the web', text: 'Learned JavaScript and React; built small tools for friends.' },
-    { year: '2022', title: 'Going deeper', text: 'Backends, databases and APIs — taking ideas all the way to production.' },
+    {
+      year: '2022',
+      title: 'Going deeper',
+      text: 'Backends, databases and APIs — taking ideas all the way to production.',
+    },
     { year: '2024', title: 'Motion & craft', text: 'Discovered GSAP and fell for interfaces that move with purpose.' },
     { year: 'Now', title: 'Building what’s next', text: 'Shipping full-stack products and experiments in AI.' },
   ],
 
   skills: [
-    { group: 'Languages', blurb: 'The ones I think in.', items: ['JavaScript', 'TypeScript', 'Python', 'Java', 'HTML5', 'CSS3'] },
+    {
+      group: 'Languages',
+      blurb: 'The ones I think in.',
+      items: ['JavaScript', 'TypeScript', 'Python', 'Java', 'HTML5', 'CSS3'],
+    },
     {
       group: 'Frontend',
       blurb: 'Interfaces that feel fast and look sharp.',
@@ -49,14 +61,26 @@ export const CONTENT = {
       blurb: 'APIs, real-time and auth behind the scenes.',
       items: ['Node.js', 'Express.js', 'Django', 'FastAPI', 'Socket.io', 'JWT'],
     },
-    { group: 'Databases', blurb: 'Where the data lives.', items: ['MongoDB', 'PostgreSQL', 'MySQL', 'Supabase', 'Firebase'] },
+    {
+      group: 'Databases',
+      blurb: 'Where the data lives.',
+      items: ['MongoDB', 'PostgreSQL', 'MySQL', 'Supabase', 'Firebase'],
+    },
     {
       group: 'Cloud & DevOps',
       blurb: 'Shipping it and keeping it up.',
       items: ['AWS', 'Cloudflare', 'Vercel', 'Netlify', 'Git', 'GitHub'],
     },
-    { group: 'AI & Data', blurb: 'Models, numbers and vision.', items: ['NumPy', 'SciPy', 'scikit-learn', 'Matplotlib', 'OpenCV'] },
+    {
+      group: 'AI & Data',
+      blurb: 'Models, numbers and vision.',
+      items: ['NumPy', 'SciPy', 'scikit-learn', 'Matplotlib', 'OpenCV'],
+    },
     { group: 'Apps', blurb: 'Beyond the browser: mobile and desktop.', items: ['Expo', 'Electron'] },
-    { group: 'Testing & Design', blurb: 'Getting it right, then making it beautiful.', items: ['Jest', 'Cypress', 'Figma'] },
+    {
+      group: 'Testing & Design',
+      blurb: 'Getting it right, then making it beautiful.',
+      items: ['Jest', 'Cypress', 'Figma'],
+    },
   ],
 };

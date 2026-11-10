@@ -11,9 +11,7 @@ import CursorFollower from './components/CursorFollower.jsx';
 import FlipText from './components/FlipText.jsx';
 import Journey from './components/Journey.jsx';
 import ReachOut from './components/ReachOut.jsx';
-import { createDissolve } from './components/dissolve.js';
 import { MusicToggleButton } from './components/MusicToggleButton.jsx';
-import ProfileCard from './components/ProfileCard.jsx';
 import ScrollReveal from './components/ScrollReveal.jsx';
 import StaggeredMenu from './components/StaggeredMenu.jsx';
 import TiltedCard from './components/TiltedCard.jsx';
@@ -76,42 +74,26 @@ export default function Home({ inert }) {
         .from(lastName.chars, { yPercent: 110, duration: 1.2, stagger: 0.045 })
         .from('.home__first-name', { yPercent: 100, autoAlpha: 0, duration: 0.9 }, 0.35);
 
-      // Photo scene, one continuous shared-element move: the photo becomes the profile card's picture.
+      // Photo scene, one continuous shared-element move: the full-window photo becomes the picture beside the
+      // About text.
       //   1. It scrolls in with section 2 until it fills the window, and holds there for a full screen.
-      //   2. It shrinks with a little parallax inside the frame and lands exactly on the card's picture, which is
-      //      scrolling up with the page, so it settles into moving content rather than an empty box. On the way,
-      //      the black-and-white photo burns away from its centre (WebGL dissolve) into the same photo in colour.
-      //   3. The card builds itself around the landed picture: its frame grows out from the picture's edges, then
-      //      the name and footer rise in.
+      //   2. It shrinks with a little parallax inside the frame and lands exactly on the still picture, which is
+      //      scrolling up with the page, so it settles into moving content rather than an empty box.
       // The photo element is window-sized and only ever scaled down (always sharp); only transforms, opacity and
       // clip-paths change, so it stays smooth.
       const photo = document.querySelector('.about__photo');
       const photoImg = photo?.querySelector('img');
       const photoSlot = document.querySelector('.about__photo-slot');
-      const card = document.querySelector('.about__card');
-      const tile = card?.querySelector('.profile-card__tile');
-      const cardText = card ? gsap.utils.toArray(card.querySelectorAll('.profile-card__footer')) : [];
-      const photoCanvas = document.querySelector('.about__photo-canvas');
+      const still = document.querySelector('.about__still');
       const scene = document.querySelector('.photo-scene');
       const main = document.querySelector('#smooth-content main');
-      if (photo && photoImg && photoCanvas && photoSlot && card && tile && scene && main) {
+      if (photo && photoImg && photoSlot && still && scene && main) {
         photo.classList.add('about__photo--flying');
         scene.classList.add('photo-scene--on');
-        // The canvas draws the photo so it can dissolve; without WebGL the plain black-and-white photo flies.
-        const dissolve = createDissolve(photoCanvas, CONTENT.portrait);
-        if (dissolve) {
-          photo.classList.add('about__photo--webgl');
-          dissolve.resize(); // measure now that the canvas is shown
-        }
-        const layer = dissolve ? photoCanvas : photoImg; // what carries the parallax
-        const onResize = () => dissolve?.resize();
-        window.addEventListener('resize', onResize);
         cleanups.push(() => {
-          window.removeEventListener('resize', onResize);
-          dissolve?.destroy();
-          photo.classList.remove('about__photo--flying', 'about__photo--webgl');
+          photo.classList.remove('about__photo--flying');
           scene.classList.remove('photo-scene--on');
-          [card, photo, photoImg, photoCanvas, ...cardText].forEach((el) => el?.removeAttribute('style'));
+          [photo, photoImg, still].forEach((el) => el.removeAttribute('style'));
         });
         let g;
         const measure = () => {
@@ -121,51 +103,29 @@ export default function Home({ inert }) {
             return { left: r.left - m.left, top: r.top - m.top, width: r.width, height: r.height };
           };
           const vh = window.innerHeight;
-          const slot = rel(photoSlot);
-          const pic = rel(tile); // the card's picture: where the photo lands
-          const cardBox = rel(card);
+          const pic = rel(still); // where the photo lands
           const fills = scene.getBoundingClientRect().top - m.top; // scroll at which it fills the window
-          // Land with the whole card on screen, a little below centre, so it stays fully in view while it
-          // builds over the next third of a screen of scrolling (it rises with the page as it does).
-          const landAt = cardBox.top - ((vh - cardBox.height) / 2 + vh * 0.12);
-          const end = landAt + vh * 0.3; // scroll at which the card is finished
+          // Land a little below centre, then hand over to the still picture over a short stretch of scrolling.
+          const landAt = pic.top - ((vh - pic.height) / 2 + vh * 0.12);
           return {
             vh,
             W: window.innerWidth,
-            slot,
+            slot: rel(photoSlot),
             pic,
-            // How far the card's frame reaches past its picture on each side, for growing it out.
-            grow: {
-              top: pic.top - cardBox.top,
-              right: cardBox.left + cardBox.width - (pic.left + pic.width),
-              bottom: cardBox.top + cardBox.height - (pic.top + pic.height),
-              left: pic.left - cardBox.left,
-            },
             fills,
             shrinkFrom: fills + vh, // holds full screen for one whole screen of scrolling
             landAt,
-            end,
+            end: landAt + vh * 0.05,
           };
         };
-        // Same entrance as the hero name: each letter rises out of its own mask.
-        const cardName = SplitText.create(card.querySelectorAll('.profile-card__name, .profile-card__title'), {
-          type: 'words,chars', // words keep the line breaks between whole words
-          mask: 'chars',
-        });
-        const nameIn = gsap
-          .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-          .from(cardName.chars, { yPercent: 110, duration: 1.1, stagger: 0.03 });
-        let nameShown = false;
-        cleanups.push(() => cardName.revert());
         const travelEase = gsap.parseEase('sine.inOut');
-        const buildEase = gsap.parseEase('power3.out');
         const update = (progress) => {
-          const { vh, W, slot, pic, grow, fills, shrinkFrom, landAt, end } = g;
+          const { vh, W, slot, pic, fills, shrinkFrom, landAt, end } = g;
           const t = progress * end; // current scroll
           const q = t <= shrinkFrom ? 0 : Math.min(1, (t - shrinkFrom) / (landAt - shrinkFrom));
           const p = travelEase(q);
-          // Where the card's picture will be on screen at the landing; the frame travels there in screen terms so
-          // it never leaves the view, then rides up with the page like everything else.
+          // Where the picture will be on screen at the landing; the frame travels there in screen terms so it
+          // never leaves the view, then rides up with the page like everything else.
           const landScreenTop = pic.top - landAt;
           const screenTop = t <= shrinkFrom ? Math.max(fills, t) - t : landScreenTop * p;
           const width = W + (pic.width - W) * p;
@@ -179,10 +139,9 @@ export default function Home({ inert }) {
           const scale = Math.max(box.width / W, box.height / vh); // covers the frame, never stretched
           const insetX = ((1 - box.width / (scale * W)) / 2) * 100;
           const insetY = ((1 - box.height / (scale * vh)) / 2) * 100;
-          const radius = (16 * p) / scale; // grows into the card picture's rounded corners
-          const build = t <= landAt ? 0 : Math.min(1, (t - landAt) / (end - landAt));
-          // Hand-off: once landed, the card's own picture (same crop) takes over under a short cross-fade.
-          const handoff = Math.min(1, build / 0.15);
+          const radius = (16 * p) / scale; // grows into the still picture's rounded corners
+          // Hand-off: once landed, the still picture (same crop) takes over under a short cross-fade.
+          const handoff = t <= landAt ? 0 : Math.min(1, (t - landAt) / (end - landAt));
           // Written straight to style every frame: cheaper than a GSAP tween per frame (no parsing or unit work).
           const px = box.left - slot.left - scale * W * (insetX / 100);
           const py = box.top - slot.top - scale * vh * (insetY / 100);
@@ -190,32 +149,11 @@ export default function Home({ inert }) {
           photo.style.clipPath = `inset(${insetY}% ${insetX}% ${insetY}% ${insetX}% round ${radius}px)`;
           photo.style.opacity = 1 - handoff;
           photo.style.visibility = handoff >= 1 ? 'hidden' : '';
+          still.style.visibility = t >= landAt ? '' : 'hidden';
           // Parallax: mid-flight the photo zooms slightly and drifts slower than the frame; it's back to normal by
-          // the landing so the crop matches the card's picture exactly.
+          // the landing so the crop matches the still picture exactly.
           const mid = Math.sin(Math.PI * q);
-          layer.style.transform = `translate3d(0, ${6 * mid}%, 0) scale(${1 + 0.14 * mid})`;
-          // Dissolve: from a third of the way to near the landing, black and white burns into colour.
-          dissolve?.render(gsap.utils.clamp(0, 1, (q - 0.3) / 0.6), [
-            box.width / (scale * W),
-            box.height / (scale * vh),
-          ]);
-
-          // The card: hidden until the landing, then its frame grows out from the picture's edges.
-          const k = 1 - buildEase(Math.min(1, build / 0.7));
-          card.style.visibility = t >= landAt ? '' : 'hidden';
-          card.style.clipPath = `inset(${grow.top * k}px ${grow.right * k}px ${grow.bottom * k}px ${grow.left * k}px round ${16 + 10 * (1 - k)}px)`;
-          // The name and title rise in letter by letter, like MASIHUDDIN; then the footer.
-          if (build > 0.3 !== nameShown) {
-            nameShown = !nameShown;
-            if (nameShown) nameIn.play();
-            else nameIn.reverse();
-          }
-          cardText.forEach((el, i) => {
-            const r = gsap.utils.clamp(0, 1, (build - 0.3 - i * 0.15) / 0.4);
-            el.style.opacity = r;
-            el.style.visibility = r > 0 ? '' : 'hidden';
-            el.style.transform = `translate3d(0, ${14 * (1 - buildEase(r))}px, 0)`;
-          });
+          photoImg.style.transform = `translate3d(0, ${6 * mid}%, 0) scale(${1 + 0.14 * mid})`;
         };
         ScrollTrigger.create({
           trigger: main,
@@ -573,23 +511,10 @@ export default function Home({ inert }) {
             <section className="about" id="about" aria-label="About">
               {/* The photo: full window in the scene above, then shrunk into this spot as you scroll. */}
               <div className="about__photo-slot">
-                {/* Where the photo ends up: it lands on this card's picture, then the card builds around it. */}
-                <div className="about__card">
-                  <ProfileCard
-                    avatarUrl={CONTENT.portrait}
-                    name="Mohommad Masihuddin"
-                    title="Developer"
-                    handle="Masihh143"
-                    status="Bangalore, India"
-                    statusColor="#FF6027"
-                    contactText="Contact"
-                    onContactClick={() => lenisRef.current?.scrollTo('#contact', { duration: 1.4 })}
-                    intro={false}
-                  />
-                </div>
+                {/* Where the photo ends up; also the picture shown without motion. */}
+                <img className="about__still" src={CONTENT.portrait} alt="Mohommad Masihuddin" />
                 <div className="about__photo" aria-hidden="true">
                   <img src={CONTENT.portrait} alt="" />
-                  <canvas className="about__photo-canvas" />
                 </div>
               </div>
               <ScrollReveal
