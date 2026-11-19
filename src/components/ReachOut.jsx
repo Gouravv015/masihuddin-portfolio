@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import FlipText from './FlipText.jsx';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './ReachOut.css';
 
@@ -228,7 +229,7 @@ export default function ReachOut({ email, onDialogChange }) {
       </div>
 
       <button className="reach__button" type="button" ref={buttonRef} onClick={open}>
-        Send message
+        <FlipText>Send message</FlipText>
       </button>
 
       <dialog
@@ -241,7 +242,7 @@ export default function ReachOut({ email, onDialogChange }) {
       >
         <div className="reach__box">
           <button className="reach__close" type="button" onClick={close} aria-label="Close">
-            Close
+            <FlipText>Close</FlipText>
           </button>
           <h2 className="reach__title" id="reach-title">
             Send a message
@@ -265,7 +266,7 @@ export default function ReachOut({ email, onDialogChange }) {
                 <textarea name="message" rows="5" required />
               </label>
               <button className="reach__send" type="submit">
-                Send
+                <FlipText>Send</FlipText>
               </button>
             </form>
           )}
