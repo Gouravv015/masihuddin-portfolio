@@ -18,13 +18,11 @@ import TiltedCard from './components/TiltedCard.jsx';
 import WorkWall from './components/WorkWall.jsx';
 import logo from './assets/logo.svg';
 import { CONTENT } from './content.js';
-import { DOT, GLYPH, HOOK_PATH } from './preloader/glyph.js';
 import './home.css';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const FINE_POINTER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 const MENU_ITEMS = [
   { label: 'Home', ariaLabel: 'Go to the top of the page', link: '#home' },
@@ -36,7 +34,6 @@ const MENU_ITEMS = [
 ];
 
 const pad = (n) => String(n).padStart(2, '0');
-const REAL_PROJECTS = CONTENT.projects.filter((project) => !project.soon);
 
 export default function Home({ inert }) {
   const rootRef = useRef(null);
@@ -299,17 +296,6 @@ export default function Home({ inert }) {
         scrollTrigger: { trigger: '.skills', start: 'top 70%' },
       });
 
-      if (REAL_PROJECTS.length) {
-        gsap.from('.work__row', {
-          y: 50,
-          autoAlpha: 0,
-          duration: 1,
-          ease: 'power3.out',
-          stagger: 0.12,
-          scrollTrigger: { trigger: '.work__list', start: 'top 80%' },
-        });
-      }
-
       // Gentle depth between the set pieces: content drifts against the scroll, so even the calm parts move.
       // Transform-only and scrubbed to the (already Lenis-smoothed) scroll.
       const drift = (target, trigger, from, to) =>
@@ -402,58 +388,6 @@ export default function Home({ inert }) {
       // "Let's talk" rolls on the same drum. Set up after the pinned sections above it, so its scroll positions
       // count their extra length.
       rollOnDrum(document.querySelector('.contact__title'));
-
-      // A preview follows the pointer over the work list. Mouse and trackpad only.
-      const preview = document.querySelector('.work__preview');
-      const list = document.querySelector('.work__list');
-      if (FINE_POINTER && preview && list) {
-        const moveX = gsap.quickTo(preview, 'x', {
-          duration: 0.5,
-          ease: 'power3',
-        });
-        const moveY = gsap.quickTo(preview, 'y', {
-          duration: 0.5,
-          ease: 'power3',
-        });
-        const follow = (e) => {
-          moveX(e.clientX);
-          moveY(e.clientY);
-        };
-        const show = (e) => {
-          gsap.set(preview, { x: e.clientX, y: e.clientY });
-          gsap.to(preview, {
-            autoAlpha: 1,
-            scale: 1,
-            rotate: -4,
-            duration: 0.45,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          });
-        };
-        const hide = () =>
-          gsap.to(preview, {
-            autoAlpha: 0,
-            scale: 0.6,
-            rotate: 0,
-            duration: 0.35,
-            ease: 'power3.in',
-            overwrite: 'auto',
-          });
-        gsap.set(preview, {
-          autoAlpha: 0,
-          scale: 0.6,
-          xPercent: -50,
-          yPercent: -50,
-        });
-        list.addEventListener('pointermove', follow);
-        list.addEventListener('pointerenter', show);
-        list.addEventListener('pointerleave', hide);
-        cleanups.push(() => {
-          list.removeEventListener('pointermove', follow);
-          list.removeEventListener('pointerenter', show);
-          list.removeEventListener('pointerleave', hide);
-        });
-      }
     }, rootRef);
 
     // With smooth scroll on, a plain anchor jump lands in the wrong place, so glide there instead.
@@ -489,19 +423,13 @@ export default function Home({ inert }) {
         openMenuButtonColor="#18181b"
         accentColor="#FF6027"
       />
-      <div className="work__preview" aria-hidden="true">
-        <svg viewBox={`0 0 ${GLYPH.width} ${GLYPH.height}`}>
-          <path d={HOOK_PATH} />
-          <rect x={DOT.x} y={DOT.y} width={DOT.size} height={DOT.size} />
-        </svg>
-      </div>
       {/* Fixed elements above stay outside: inside the scrolling content they would scroll away. */}
       <div id="smooth-wrapper">
         <div id="smooth-content">
           <main>
             <section className="home__hero" id="home">
               <h1 className="home__title">
-                <span className="home__first-name">MOHOMMAD</span> <span className="home__last-name">MASIHUDDIN</span>
+                <span className="home__first-name">MOHAMMED</span> <span className="home__last-name">MASIHUDDIN</span>
               </h1>
             </section>
 
@@ -512,7 +440,7 @@ export default function Home({ inert }) {
               {/* The photo: full window in the scene above, then shrunk into this spot as you scroll. */}
               <div className="about__photo-slot">
                 {/* Where the photo ends up; also the picture shown without motion. */}
-                <img className="about__still" src={CONTENT.portrait} alt="Mohommad Masihuddin" />
+                <img className="about__still" src={CONTENT.portrait} alt="Mohammed Masihuddin" />
                 <div className="about__photo" aria-hidden="true">
                   <img src={CONTENT.portrait} alt="" />
                 </div>
@@ -587,7 +515,15 @@ export default function Home({ inert }) {
                               ) : (
                                 <span className="work-reel__card-fallback">
                                   <span className="work-reel__card-index">{pad(index + 1)}</span>
-                                  {project.title}
+                                  <span className="work-reel__card-info">
+                                    <span className="work-reel__card-title">{project.title}</span>
+                                    {project.summary && (
+                                      <span className="work-reel__card-summary">{project.summary}</span>
+                                    )}
+                                    {project.tags && (
+                                      <span className="work-reel__card-tags">{project.tags.join(' / ')}</span>
+                                    )}
+                                  </span>
                                 </span>
                               )}
                             </TiltedCard>
@@ -598,33 +534,6 @@ export default function Home({ inert }) {
                   })}
                 </ul>
               </div>
-              {REAL_PROJECTS.length > 0 && (
-                <ol className="work__list">
-                  {REAL_PROJECTS.map((project, index) => {
-                    const Row = project.url ? 'a' : 'div';
-                    return (
-                      <li key={project.title}>
-                        <Row
-                          className="work__row"
-                          {...(project.url
-                            ? {
-                                href: project.url,
-                                target: '_blank',
-                                rel: 'noreferrer',
-                              }
-                            : {})}
-                        >
-                          <span className="work__index">{pad(index + 1)}</span>
-                          <span className="work__title">{project.title}</span>
-                          <span className="work__summary">{project.summary}</span>
-                          <span className="work__tags">{project.tags.join(' / ')}</span>
-                          <span className="work__year">{project.year}</span>
-                        </Row>
-                      </li>
-                    );
-                  })}
-                </ol>
-              )}
             </section>
 
             {/* A passing beat before Skills: three huge lines that drift apart as you scroll past. */}
@@ -670,7 +579,7 @@ export default function Home({ inert }) {
           </main>
           <footer className="home__credits">
             <div className="footer__row">
-              <span>© {new Date().getFullYear()} Mohommad Masihuddin</span>
+              <span>© {new Date().getFullYear()} Mohammed Masihuddin</span>
               <a href="#home">
                 <FlipText>Back to top ↑</FlipText>
               </a>

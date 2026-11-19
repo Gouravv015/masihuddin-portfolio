@@ -6,7 +6,7 @@
   --ease: cubic-bezier(0.65, 0, 0.2, 1);
   position: relative;
   z-index: 2; /* above the SKILLS heading, which overlaps the shelf's top, so its buttons stay clickable */
-  height: max(100svh, 640px);
+  height: max(92svh, 620px);
   overflow: hidden;
   touch-action: pan-y;
   isolation: isolate;
@@ -241,7 +241,12 @@
 .book--ink {
   /* Black, with orange light glowing up from the bottom. */
   --book-cover: #121212;
-  --book-pattern: radial-gradient(120% 70% at 85% 105%, rgba(255, 96, 39, 0.55) 0%, rgba(255, 96, 39, 0.12) 45%, transparent 70%);
+  --book-pattern: radial-gradient(
+    120% 70% at 85% 105%,
+    rgba(255, 96, 39, 0.55) 0%,
+    rgba(255, 96, 39, 0.12) 45%,
+    transparent 70%
+  );
   --book-spine: #ff6027;
   --book-ink: #f5f5f5;
   --book-accent: #ff6027;
@@ -259,7 +264,8 @@
 .book--ember {
   /* Deep burnt brown with orange lettering. */
   --book-cover: #2a1209;
-  --book-pattern: linear-gradient(180deg, rgba(255, 96, 39, 0.18) 0%, transparent 40%),
+  --book-pattern:
+    linear-gradient(180deg, rgba(255, 96, 39, 0.18) 0%, transparent 40%),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 6px);
   --book-spine: #5a2410;
   --book-ink: #ff6027;
@@ -292,7 +298,9 @@
 }
 
 .shelf__nav {
-  transition: left 0.6s var(--ease), width 0.6s var(--ease);
+  transition:
+    left 0.6s var(--ease),
+    width 0.6s var(--ease);
 }
 
 /* Open book: the arrows move apart to the lower left and lower right, with nothing between them. */
@@ -312,7 +320,7 @@
   width: 74px;
   height: 74px;
   padding: 0;
-  border: 1px solid rgba(245, 245, 245, 0.25);
+  border: 1px solid var(--line);
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
@@ -422,8 +430,8 @@
 .shelf__close {
   margin-bottom: 2rem;
   padding: 10px 20px;
-  border: 1px solid #383838;
-  border-radius: 8px; /* a rectangle with softly rounded corners */
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: #f5f5f5;
   font: inherit;
@@ -471,10 +479,10 @@
 
 .shelf__detail-skills li {
   padding: 0.55rem 1.05rem;
-  border: 1px solid #ff6027;
+  border: 1px solid var(--accent);
   border-radius: 999px;
-  color: #f5f5f5;
-  font-size: 0.9375rem;
+  color: var(--fg);
+  font-size: var(--text-sm);
 }
 
 /* ---------- Phones: one book at a time; when open, the book goes up and the details sit underneath ---------- */

@@ -13,8 +13,8 @@
 }
 
 .home {
-  background: #0e0e0e;
-  color: #f5f5f5;
+  background: var(--bg);
+  color: var(--fg);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -233,9 +233,9 @@
 /* Right padding keeps the footer clear of the fixed music button. */
 .home__credits {
   padding: 2rem 7rem 2rem var(--gutter);
-  border-top: 1px solid #383838;
-  color: #f5f5f5;
-  font-size: 0.75rem;
+  border-top: 1px solid var(--line);
+  color: var(--fg);
+  font-size: var(--text-xs);
 }
 
 .home__credits a {
@@ -247,8 +247,8 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
-  color: #f5f5f5;
-  font-size: 0.875rem;
+  color: var(--fg);
+  font-size: var(--text-sm);
 }
 
 .footer__row a {
@@ -256,7 +256,7 @@
 }
 
 .footer__row a:hover {
-  color: #ff6027;
+  color: var(--accent);
 }
 
 .home .staggered-menu-header {
@@ -268,6 +268,25 @@
 .home {
   --gutter: 26px;
   --section: 24vh;
+
+  /* Colour: near-black and off-white, one orange accent, and greys derived from the off-white. */
+  --bg: #0e0e0e;
+  --surface: #141414;
+  --fg: #f5f5f5;
+  --muted: rgba(245, 245, 245, 0.6);
+  --line: #383838;
+  --accent: #ff6027;
+
+  /* Small type: captions and labels, secondary text, body. Small uppercase labels share one tracking. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --label-tracking: 0.12em;
+
+  /* Corners: controls, cards, large surfaces. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
 }
 
 .home .sm-logo-img {
@@ -285,7 +304,7 @@
 
 .home__title {
   margin: 0;
-  color: #fff;
+  color: var(--fg);
   font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
   text-align: center;
   white-space: nowrap;
@@ -446,9 +465,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 24px;
-  color: #f5f5f5;
-  font-size: 0.8125rem;
+  padding: clamp(20px, 2.2vw, 32px);
+  color: var(--fg);
+  font-size: var(--text-xs);
   text-transform: uppercase;
 }
 
@@ -460,6 +479,35 @@
   line-height: 0.8;
 }
 
+/* A card without a screenshot shows the project itself. */
+.work-reel__card-info {
+  display: grid;
+  gap: 0.75rem;
+  text-transform: none;
+}
+
+.work-reel__card-title {
+  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(2.25rem, 4vw, 3.75rem);
+  font-weight: 700;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.work-reel__card-summary {
+  max-width: 44ch;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.work-reel__card-tags {
+  color: var(--accent);
+  font-size: var(--text-xs);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
 .work-reel__caption {
   position: absolute;
   z-index: 1;
@@ -468,7 +516,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   background: rgba(14, 14, 14, 0.8);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
 }
 
@@ -485,88 +533,6 @@ a.work-reel__card:focus-visible {
     padding: 0 var(--gutter);
     overflow-x: auto;
   }
-}
-
-.work__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid #383838;
-}
-
-.work__list li {
-  border-bottom: 1px solid #383838;
-}
-
-.work__row {
-  display: grid;
-  grid-template-columns: 3rem 1.2fr 2fr 1fr 4rem;
-  align-items: baseline;
-  gap: 1.5rem;
-  padding: 2.25rem 0;
-  color: #f5f5f5;
-  text-decoration: none;
-  transition:
-    padding 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    color 0.3s;
-}
-
-.work__row:hover,
-a.work__row:focus-visible {
-  padding-left: 1rem;
-  color: #ff6027;
-}
-
-a.work__row:focus-visible {
-  outline: 2px solid #ff6027;
-  outline-offset: 4px;
-}
-
-.work__index,
-.work__tags,
-.work__year {
-  color: #f5f5f5;
-  font-size: 0.8125rem;
-}
-
-.work__year {
-  text-align: right;
-}
-
-.work__title {
-  font-family: 'Thunder', 'Arial Narrow', Arial, sans-serif;
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  font-weight: 700;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-
-.work__summary {
-  max-width: 42ch;
-  color: #f5f5f5;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-
-/* The project preview that follows the pointer over the work list (mouse and trackpad only). */
-.work__preview {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 20;
-  display: grid;
-  place-items: center;
-  width: 260px;
-  aspect-ratio: 4 / 5;
-  border-radius: 14px;
-  background: #ff6027;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.work__preview svg {
-  width: 38%;
-  fill: #0e0e0e;
 }
 
 .contact {
@@ -589,20 +555,6 @@ a.work__row:focus-visible {
   /* Smaller type rolls away sooner. */
   .contact__title {
     margin-bottom: -68vh;
-  }
-
-  .work__row {
-    grid-template-columns: 2.5rem 1fr;
-    gap: 0.5rem 1rem;
-  }
-
-  .work__summary,
-  .work__tags {
-    grid-column: 2;
-  }
-
-  .work__year {
-    display: none;
   }
 }
 
@@ -685,7 +637,7 @@ a.player-controls__title:focus-visible {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   object-fit: cover;
   filter: grayscale(1);
 }

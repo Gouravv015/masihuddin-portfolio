@@ -28,7 +28,7 @@ export default function CursorFollower() {
       target.x = e.clientX;
       target.y = e.clientY;
       // Over project rows the preview card follows the pointer instead, so the circle steps aside.
-      if (e.target.closest?.('.work__row, .shelf__arrow')) targetScale = 0;
+      if (e.target.closest?.('.shelf__arrow')) targetScale = 0;
       else targetScale = e.target.closest?.('a, button') ? HOVER_SCALE : 1;
       if (!visible) {
         // Appear at the cursor rather than flying in from wherever it left.
